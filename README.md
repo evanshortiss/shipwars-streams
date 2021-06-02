@@ -31,6 +31,7 @@ Once the other services have started, you can start this one using:
 
 ```bash
 QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=localhost:9094 \
+KAFKA_BOOTSTRAP_SERVERS=localhost:9094 \
 QUARKUS_HTTP_PORT=8585 \
 ./mvnw quarkus:dev -f shot-distribution-aggregator/pom.xml
 ```
