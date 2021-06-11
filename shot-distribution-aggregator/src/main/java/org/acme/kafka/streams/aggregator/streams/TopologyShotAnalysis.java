@@ -5,7 +5,7 @@ import javax.enterprise.inject.Produces;
 
 import org.acme.kafka.streams.aggregator.model.ShipwarsSerdes;
 import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataAggregate;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataWrapperJSON;
+import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataWrapper;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -33,7 +33,7 @@ public class TopologyShotAnalysis {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        final Serde<ShipwarsShotDataWrapperJSON> shotJsonDataSerde = ShipwarsSerdes.getShotJsonSerde();
+        final Serde<ShipwarsShotDataWrapper> shotJsonDataSerde = ShipwarsSerdes.getShotJsonSerde();
         final ObjectMapperSerde<ShipwarsShotDataAggregate> aggregateSerde = new ObjectMapperSerde<>(ShipwarsShotDataAggregate.class);
         KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(SHOTS_ANALYSIS_STORE);
 

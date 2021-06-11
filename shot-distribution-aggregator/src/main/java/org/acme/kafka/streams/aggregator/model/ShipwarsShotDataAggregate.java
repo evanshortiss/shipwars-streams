@@ -12,7 +12,7 @@ public class ShipwarsShotDataAggregate {
         this.shotCountData = new HashMap<String, Integer>();
     }
 
-    public ShipwarsShotDataAggregate updateFrom (String gameId, ShipwarsShotDataJSON payload) {
+    public ShipwarsShotDataAggregate updateFrom (String gameId, ShipwarsShotData payload) {
         // Create key with format "x,y"
         String key = payload.getOrigin().toCoordinateString();
 

@@ -11,9 +11,9 @@ import javax.inject.Inject;
 
 import org.acme.kafka.streams.aggregator.model.ShipwarsSerdes;
 import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataAggregate;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataJSON;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataWrapperJSON;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotOriginJSON;
+import org.acme.kafka.streams.aggregator.model.ShipwarsShotData;
+import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataWrapper;
+import org.acme.kafka.streams.aggregator.model.ShipwarsShotOrigin;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
@@ -40,7 +40,7 @@ public class TopologyShotAnalysisTest {
     @Inject
     Topology topology;
     TopologyTestDriver testDriver;
-    TestInputTopic<String, ShipwarsShotDataWrapperJSON> shotsIn;
+    TestInputTopic<String, ShipwarsShotDataWrapper> shotsIn;
     TestOutputTopic<String, ShipwarsShotDataAggregate> aggregateOut;
 
     @BeforeEach
@@ -73,18 +73,18 @@ public class TopologyShotAnalysisTest {
         String key1 = "gameA:matchA";
         String key2 = "gameA:matchB";
 
-        ShipwarsShotOriginJSON origin = new ShipwarsShotOriginJSON();
+        ShipwarsShotOrigin origin = new ShipwarsShotOrigin();
         origin.setX(0);
         origin.setY(0);
 
-        ShipwarsShotDataJSON shot1 = new ShipwarsShotDataJSON();
+        ShipwarsShotData shot1 = new ShipwarsShotData();
         shot1.setAttacker("Jane");
         shot1.setDestroyed("Carrier");
         shot1.setHit(true);
         shot1.setOrigin(origin);
         shot1.setScoreDelta(5);
 
-        ShipwarsShotDataJSON shot2 = new ShipwarsShotDataJSON();
+        ShipwarsShotData shot2 = new ShipwarsShotData();
         shot2.setAttacker("Jane");
         shot2.setDestroyed("Carrier");
         shot2.setHit(true);
@@ -92,9 +92,9 @@ public class TopologyShotAnalysisTest {
         shot2.setScoreDelta(5);
 
         // Write the same shot for two separate matches (matchA and matchB)
-        ShipwarsShotDataWrapperJSON w1 = new ShipwarsShotDataWrapperJSON();
+        ShipwarsShotDataWrapper w1 = new ShipwarsShotDataWrapper();
         w1.setData(shot1);
-        ShipwarsShotDataWrapperJSON w2 = new ShipwarsShotDataWrapperJSON();
+        ShipwarsShotDataWrapper w2 = new ShipwarsShotDataWrapper();
         w2.setData(shot2);
 
         shotsIn.pipeInput(key1, w1);
@@ -113,40 +113,40 @@ public class TopologyShotAnalysisTest {
         String key2 = "gameY:matchA";
         String key3 = "gameY:matchB";
 
-        ShipwarsShotOriginJSON origin = new ShipwarsShotOriginJSON();
+        ShipwarsShotOrigin origin = new ShipwarsShotOrigin();
         origin.setX(0);
         origin.setY(0);
 
-        ShipwarsShotDataJSON shot1 = new ShipwarsShotDataJSON();
+        ShipwarsShotData shot1 = new ShipwarsShotData();
         shot1.setAttacker("Jane");
         shot1.setDestroyed("Carrier");
         shot1.setHit(true);
         shot1.setOrigin(origin);
         shot1.setScoreDelta(5);
 
-        ShipwarsShotDataJSON shot2 = new ShipwarsShotDataJSON();
+        ShipwarsShotData shot2 = new ShipwarsShotData();
         shot2.setAttacker("Jane");
         shot2.setDestroyed("Carrier");
         shot2.setHit(true);
         shot2.setOrigin(origin);
         shot2.setScoreDelta(5);
 
-        ShipwarsShotDataJSON shot3 = new ShipwarsShotDataJSON();
+        ShipwarsShotData shot3 = new ShipwarsShotData();
         shot3.setAttacker("Jane");
         shot3.setDestroyed("Carrier");
         shot3.setHit(true);
         shot3.setOrigin(origin);
         shot3.setScoreDelta(5);
 
-        ShipwarsShotDataWrapperJSON w1 = new ShipwarsShotDataWrapperJSON();
+        ShipwarsShotDataWrapper w1 = new ShipwarsShotDataWrapper();
         w1.setData(shot1);
         shotsIn.pipeInput(key1, w1);
 
-        ShipwarsShotDataWrapperJSON w2 = new ShipwarsShotDataWrapperJSON();
+        ShipwarsShotDataWrapper w2 = new ShipwarsShotDataWrapper();
         w2.setData(shot2);
         shotsIn.pipeInput(key2, w2);
 
-        ShipwarsShotDataWrapperJSON w3 = new ShipwarsShotDataWrapperJSON();
+        ShipwarsShotDataWrapper w3 = new ShipwarsShotDataWrapper();
         w3.setData(shot3);
         shotsIn.pipeInput(key3, w3);
 

@@ -1,5 +1,6 @@
 package org.acme.kafka.streams.aggregator.model;
 
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
@@ -19,8 +20,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "origin"
 })
 @Generated("jsonschema2pojo")
-public class ShipwarsShotDataJSON {
+public class ShipwarsShotData {
 
+    @JsonProperty("game")
+    private String game;
+    @JsonProperty("match")
+    private String match;
     @JsonProperty("attacker")
     private String attacker;
     @JsonProperty("scoreDelta")
@@ -30,9 +35,29 @@ public class ShipwarsShotDataJSON {
     @JsonProperty("hit")
     private Boolean hit;
     @JsonProperty("origin")
-    private ShipwarsShotOriginJSON origin;
+    private ShipwarsShotOrigin origin;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("game")
+    public String getGame() {
+        return game;
+    }
+
+    @JsonProperty("game")
+    public void setGame(String game) {
+        this.game = game;
+    }
+
+    @JsonProperty("match")
+    public String getMatch() {
+        return match;
+    }
+
+    @JsonProperty("match")
+    public void setMatch(String match) {
+        this.match = match;
+    }
 
     @JsonProperty("attacker")
     public String getAttacker() {
@@ -75,12 +100,12 @@ public class ShipwarsShotDataJSON {
     }
 
     @JsonProperty("origin")
-    public ShipwarsShotOriginJSON getOrigin() {
+    public ShipwarsShotOrigin getOrigin() {
         return origin;
     }
 
     @JsonProperty("origin")
-    public void setOrigin(ShipwarsShotOriginJSON origin) {
+    public void setOrigin(ShipwarsShotOrigin origin) {
         this.origin = origin;
     }
 
