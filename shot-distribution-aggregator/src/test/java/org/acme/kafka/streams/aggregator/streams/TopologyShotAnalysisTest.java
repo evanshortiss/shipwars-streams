@@ -46,6 +46,7 @@ public class TopologyShotAnalysisTest {
     @BeforeEach
     public void setUp(){
         Properties config = new Properties();
+
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "testApplicationId");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
         testDriver = new TopologyTestDriver(topology, config);
