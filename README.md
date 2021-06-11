@@ -17,6 +17,15 @@ The _shot-distribution-aggregator_ exposes a single endpoint:
 mvn clean install
 ```
 
+## Use with OpenShift Streams for Apache Kafka
+
+```
+KAFKA_BOOTSTRAP_SERVERS=$(rhoas kafka describe | jq .bootstrapServerHost -r) \
+KAFKA_CLIENT_ID="replace-me" \
+KAFKA_CLIENT_SECRET="replace-me" \
+./mvnw quarkus:dev -f shot-distribution-aggregator/pom.xml
+```
+
 ## Running Locally
 
 Refer to the Docker/Podman guides in [Shipwars Deployment](https://github.com/redhat-gamedev/shipwars-deployment).

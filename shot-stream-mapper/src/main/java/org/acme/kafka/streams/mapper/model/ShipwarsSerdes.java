@@ -1,4 +1,4 @@
-package org.acme.kafka.streams.aggregator.model;
+package org.acme.kafka.streams.mapper.model;
 
 import java.util.HashMap;
 import java.util.Map;

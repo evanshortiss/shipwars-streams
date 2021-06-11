@@ -34,13 +34,16 @@ public class TopologyShotAnalysis {
         StreamsBuilder builder = new StreamsBuilder();
 
         final Serde<ShipwarsShotDataWrapperJSON> shotJsonDataSerde = ShipwarsSerdes.getShotJsonSerde();
-        ObjectMapperSerde<ShipwarsShotDataAggregate> aggregateSerde = new ObjectMapperSerde<>(ShipwarsShotDataAggregate.class);
-
+        final ObjectMapperSerde<ShipwarsShotDataAggregate> aggregateSerde = new ObjectMapperSerde<>(ShipwarsShotDataAggregate.class);
         KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(SHOTS_ANALYSIS_STORE);
 
-        builder.stream(
-            SHOTS_TOPIC,
-            Consumed.with(Serdes.String(), shotJsonDataSerde))
+        /**
+         * Aggregation topology. This creates an aggregate record of all shots
+         * targeting specific cells for a given game generation. A generation
+         * is a unique ID generated on the startup of the game server. Each
+         * restart/deployment will be a new generation.
+         */
+        builder.stream(SHOTS_TOPIC, Consumed.with(Serdes.String(), shotJsonDataSerde))
             .map((k, v) -> {
                 // Use the overall game generation/id as the key so we keep a
                 // record of shot distribution for the overall game generation
