@@ -1,4 +1,4 @@
-package org.acme.kafka.streams.aggregator.streams;
+package org.acme.kafka.streams.mapper.streams;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;

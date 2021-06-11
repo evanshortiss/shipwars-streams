@@ -21,9 +21,9 @@ public class TopologyShotMapper {
 
     private static final Logger LOG = Logger.getLogger(TopologyShotMapper.class);
 
-    static final String SHOTS_TOPIC = "shipwars-attacks";
-    static final String PLAYERS_TOPIC = "shipwars-players";
-    static final String SHOTS_LITE_TOPIC = "shipwars-attacks-lite";
+    public static final String SHOTS_TOPIC = "shipwars-attacks";
+    public static final String PLAYERS_TOPIC = "shipwars-players";
+    public static final String SHOTS_LITE_TOPIC = "shipwars-attacks-lite";
 
     @Produces
     public Topology buildTopology() {
