@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "y"
 })
 @Generated("jsonschema2pojo")
-public class ShipwarsShotOriginJSON {
+public class ShipwarsShotOrigin {
 
     @JsonProperty("x")
     private Integer x;

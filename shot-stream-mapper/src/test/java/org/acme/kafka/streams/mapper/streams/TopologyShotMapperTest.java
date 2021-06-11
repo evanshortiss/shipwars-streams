@@ -12,9 +12,9 @@ import javax.inject.Inject;
 import org.acme.kafka.streams.mapper.model.ShipwarsPlayerData;
 import org.acme.kafka.streams.mapper.model.ShipwarsPlayerDataWrapper;
 import org.acme.kafka.streams.mapper.model.ShipwarsSerdes;
-import org.acme.kafka.streams.mapper.model.ShipwarsShotDataJSON;
-import org.acme.kafka.streams.mapper.model.ShipwarsShotDataWrapperJSON;
-import org.acme.kafka.streams.mapper.model.ShipwarsShotOriginJSON;
+import org.acme.kafka.streams.mapper.model.ShipwarsShotData;
+import org.acme.kafka.streams.mapper.model.ShipwarsShotDataWrapper;
+import org.acme.kafka.streams.mapper.model.ShipwarsShotOrigin;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
@@ -40,7 +40,7 @@ public class TopologyShotMapperTest {
     @Inject
     Topology topology;
     TopologyTestDriver testDriver;
-    TestInputTopic<String, ShipwarsShotDataWrapperJSON> shotsIn;
+    TestInputTopic<String, ShipwarsShotDataWrapper> shotsIn;
     TestInputTopic<String, ShipwarsPlayerDataWrapper> playersIn;
     TestOutputTopic<String, String> joinedTopic;
 
@@ -76,7 +76,7 @@ public class TopologyShotMapperTest {
     }
 
     @Test
-    public void testJoinHumanHit () throws InterruptedException{
+    public void testJoinHumanHit () {
         String gameId = "gameId";
         String playerId = "playerId";
         String matchId = "matchId";
@@ -84,10 +84,10 @@ public class TopologyShotMapperTest {
         String playerKey = gameId + ":" + playerId;
         String shotKey = gameId + ":" + matchId;
 
-        ShipwarsShotOriginJSON origin = new ShipwarsShotOriginJSON();
+        ShipwarsShotOrigin origin = new ShipwarsShotOrigin();
         origin.setX(0);
         origin.setY(0);
-        ShipwarsShotDataJSON shot = new ShipwarsShotDataJSON();
+        ShipwarsShotData shot = new ShipwarsShotData();
         shot.setAttacker(playerId);
         shot.setGame(gameId);
         shot.setMatch(matchId);
@@ -95,7 +95,7 @@ public class TopologyShotMapperTest {
         shot.setHit(true);
         shot.setOrigin(origin);
         shot.setScoreDelta(5);
-        ShipwarsShotDataWrapperJSON shotWrapper = new ShipwarsShotDataWrapperJSON();
+        ShipwarsShotDataWrapper shotWrapper = new ShipwarsShotDataWrapper();
         shotWrapper.setData(shot);
 
         ShipwarsPlayerDataWrapper playerWrapper = new ShipwarsPlayerDataWrapper();
@@ -108,15 +108,13 @@ public class TopologyShotMapperTest {
         playersIn.pipeInput(playerKey, playerWrapper);
         shotsIn.pipeInput(shotKey, shotWrapper);
 
-        Thread.sleep(1000);
-
         TestRecord<String, String> result = joinedTopic.readRecord();;
 
         Assertions.assertEquals("human:hit:0,0", result.getValue());
     }
 
     @Test
-    public void testJoinAiMiss () throws InterruptedException{
+    public void testJoinAiMiss () {
         String gameId = "gameId";
         String playerId = "playerId";
         String matchId = "matchId";
@@ -124,17 +122,17 @@ public class TopologyShotMapperTest {
         String playerKey = gameId + ":" + playerId;
         String shotKey = gameId + ":" + matchId;
 
-        ShipwarsShotOriginJSON origin = new ShipwarsShotOriginJSON();
+        ShipwarsShotOrigin origin = new ShipwarsShotOrigin();
         origin.setX(0);
         origin.setY(0);
-        ShipwarsShotDataJSON shot = new ShipwarsShotDataJSON();
+        ShipwarsShotData shot = new ShipwarsShotData();
         shot.setAttacker(playerId);
         shot.setGame(gameId);
         shot.setMatch(matchId);
         shot.setHit(false);
         shot.setOrigin(origin);
         shot.setScoreDelta(5);
-        ShipwarsShotDataWrapperJSON shotWrapper = new ShipwarsShotDataWrapperJSON();
+        ShipwarsShotDataWrapper shotWrapper = new ShipwarsShotDataWrapper();
         shotWrapper.setData(shot);
 
         ShipwarsPlayerDataWrapper playerWrapper = new ShipwarsPlayerDataWrapper();
@@ -146,8 +144,6 @@ public class TopologyShotMapperTest {
 
         playersIn.pipeInput(playerKey, playerWrapper);
         shotsIn.pipeInput(shotKey, shotWrapper);
-
-        Thread.sleep(1000);
 
         TestRecord<String, String> result = joinedTopic.readRecord();;
 

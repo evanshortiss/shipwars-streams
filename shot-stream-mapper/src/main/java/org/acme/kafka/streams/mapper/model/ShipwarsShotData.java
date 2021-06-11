@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "origin"
 })
 @Generated("jsonschema2pojo")
-public class ShipwarsShotDataJSON {
+public class ShipwarsShotData {
 
     @JsonProperty("game")
     private String game;
@@ -34,7 +34,7 @@ public class ShipwarsShotDataJSON {
     @JsonProperty("hit")
     private Boolean hit;
     @JsonProperty("origin")
-    private ShipwarsShotOriginJSON origin;
+    private ShipwarsShotOrigin origin;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -99,12 +99,12 @@ public class ShipwarsShotDataJSON {
     }
 
     @JsonProperty("origin")
-    public ShipwarsShotOriginJSON getOrigin() {
+    public ShipwarsShotOrigin getOrigin() {
         return origin;
     }
 
     @JsonProperty("origin")
-    public void setOrigin(ShipwarsShotOriginJSON origin) {
+    public void setOrigin(ShipwarsShotOrigin origin) {
         this.origin = origin;
     }
 

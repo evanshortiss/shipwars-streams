@@ -5,7 +5,7 @@ import javax.enterprise.inject.Produces;
 
 import org.acme.kafka.streams.mapper.model.ShipwarsPlayerDataWrapper;
 import org.acme.kafka.streams.mapper.model.ShipwarsSerdes;
-import org.acme.kafka.streams.mapper.model.ShipwarsShotDataWrapperJSON;
+import org.acme.kafka.streams.mapper.model.ShipwarsShotDataWrapper;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -30,9 +30,9 @@ public class TopologyShotMapper {
         StreamsBuilder builder = new StreamsBuilder();
 
         final Serde<ShipwarsPlayerDataWrapper> playerJsonDataSerde = ShipwarsSerdes.getPlayerJsonSerde();
-        final Serde<ShipwarsShotDataWrapperJSON> shotJsonDataSerde = ShipwarsSerdes.getShotJsonSerde();
+        final Serde<ShipwarsShotDataWrapper> shotJsonDataSerde = ShipwarsSerdes.getShotJsonSerde();
 
-        KStream<String, ShipwarsShotDataWrapperJSON> shotsStream = builder.stream(
+        KStream<String, ShipwarsShotDataWrapper> shotsStream = builder.stream(
             SHOTS_TOPIC,
             Consumed.with(Serdes.String(), shotJsonDataSerde)
         );

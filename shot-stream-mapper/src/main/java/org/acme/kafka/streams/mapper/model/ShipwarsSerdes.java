@@ -10,16 +10,16 @@ import org.apache.kafka.common.serialization.Serializer;
 public class ShipwarsSerdes {
     final static Map<String, Object> serdeProps = new HashMap<>();
 
-    public static Serde<ShipwarsShotDataWrapperJSON> getShotJsonSerde () {
-        final Serializer<ShipwarsShotDataWrapperJSON> serializer = new JsonPOJOSerializer<>();
-        serdeProps.put("JsonPOJOClass", ShipwarsShotDataWrapperJSON.class);
+    public static Serde<ShipwarsShotDataWrapper> getShotJsonSerde () {
+        final Serializer<ShipwarsShotDataWrapper> serializer = new JsonPOJOSerializer<>();
+        serdeProps.put("JsonPOJOClass", ShipwarsShotDataWrapper.class);
         serializer.configure(serdeProps, false);
 
-        final Deserializer<ShipwarsShotDataWrapperJSON> deserializer = new JsonPOJODeserializer<>();
-        serdeProps.put("JsonPOJOClass", ShipwarsShotDataWrapperJSON.class);
+        final Deserializer<ShipwarsShotDataWrapper> deserializer = new JsonPOJODeserializer<>();
+        serdeProps.put("JsonPOJOClass", ShipwarsShotDataWrapper.class);
         deserializer.configure(serdeProps, false);
 
-        final Serde<ShipwarsShotDataWrapperJSON> shotDataSerde = Serdes.serdeFrom(serializer, deserializer);
+        final Serde<ShipwarsShotDataWrapper> shotDataSerde = Serdes.serdeFrom(serializer, deserializer);
 
         return shotDataSerde;
     }
