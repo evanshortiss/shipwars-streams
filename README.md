@@ -19,8 +19,32 @@ to analyse events sent to Kafka by the [Shipwars Game Server](https://github.com
 
 The _shot-distribution-aggregator_ exposes the following endpoints:
 
-* `GET /shot-distribution` - Returns the shot distribution for all game generations.
+* `GET /shot-distribution` - Returns the shot distribution for all game generations in JSON format.
 * `GET /shot-distribution/stream` - Opens a HTTP Server-Sent Events stream that sends each enriched shot to the HTTP client.
+
+The shot distribution JSON response contains top-level game generation keys,
+and within these are the hit/miss counts for each cell and each player type.
+
+```js
+{
+  "a-unique-game-uuid": {
+    "0,0": {
+      "ai_hit": 6,
+      "ai_miss": 2,
+      "human_hit": 3,
+      "human_miss": 5
+    },
+     "0,1": {
+      "ai_hit": 1,
+      "ai_miss": 6,
+      "human_hit": 2,
+      "human_miss": 5
+    }
+    // Data for every cell on the 5x5 grid, i.e up to key "4,4"...
+  },
+  "another-unique-game-uuid": { /* Data for all cells in that game */ }
+}
+```
 
 ## Use with OpenShift Streams for Apache Kafka
 
