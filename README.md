@@ -13,6 +13,8 @@ to analyse events sent to Kafka by the [Shipwars Game Server](https://github.com
     <img style="max-width: 500px;" src="assets/architecture.png"/>
 	<br>
   <i>Architecture of this Quarkus Kafka Streams Application.</i>
+  <br>
+  <br>
 </div>
 
 The _shot-distribution-aggregator_ exposes the following endpoints:
