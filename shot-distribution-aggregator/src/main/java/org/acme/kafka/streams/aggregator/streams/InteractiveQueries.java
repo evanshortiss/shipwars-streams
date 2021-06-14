@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataAggregate;
+import org.acme.kafka.streams.aggregator.model.GameShotDataAggregate;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
@@ -38,20 +38,20 @@ public class InteractiveQueries {
             .collect(Collectors.toList());
     }
 
-    public HashMap<String, ShipwarsShotDataAggregate> getAllShotData () {
-        HashMap<String, ShipwarsShotDataAggregate> results = new HashMap<String, ShipwarsShotDataAggregate>();
-        ReadOnlyKeyValueStore<String, ShipwarsShotDataAggregate> keyValueStore = getShotAnalysisStore();
-        KeyValueIterator<String, ShipwarsShotDataAggregate> it = keyValueStore.all();
+    public HashMap<String, GameShotDataAggregate> getAllShotData () {
+        HashMap<String, GameShotDataAggregate> results = new HashMap<String, GameShotDataAggregate>();
+        ReadOnlyKeyValueStore<String, GameShotDataAggregate> keyValueStore = getShotAnalysisStore();
+        KeyValueIterator<String, GameShotDataAggregate> it = keyValueStore.all();
 
         while (it.hasNext()) {
-            KeyValue<String, ShipwarsShotDataAggregate> entry = it.next();
+            KeyValue<String, GameShotDataAggregate> entry = it.next();
             results.put(entry.key, entry.value);
         }
 
         return results;
     }
 
-    private ReadOnlyKeyValueStore<String, ShipwarsShotDataAggregate> getShotAnalysisStore() {
+    private ReadOnlyKeyValueStore<String, GameShotDataAggregate> getShotAnalysisStore() {
         while (true) {
             try {
                 return streams.store(TopologyShotAnalysis.SHOTS_ANALYSIS_STORE, QueryableStoreTypes.keyValueStore());

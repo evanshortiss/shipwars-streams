@@ -8,6 +8,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>shot-distribution-aggregator</module>
-    <module>shot-stream-mapper</module>
+    <module>shot-stream-enricher</module>
   </modules>
 </project>

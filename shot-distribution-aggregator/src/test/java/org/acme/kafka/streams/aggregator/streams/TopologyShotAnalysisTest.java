@@ -6,14 +6,11 @@ import static org.acme.kafka.streams.aggregator.streams.TopologyShotAnalysis.SHO
 
 
 import java.util.Properties;
+import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.acme.kafka.streams.aggregator.model.ShipwarsSerdes;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataAggregate;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotData;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotDataWrapper;
-import org.acme.kafka.streams.aggregator.model.ShipwarsShotOrigin;
+import org.acme.kafka.streams.aggregator.model.GameShotDataAggregate;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
@@ -22,6 +19,7 @@ import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.test.TestRecord;
+import org.jboss.logging.Logger;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
 import org.junit.jupiter.api.AfterEach;
@@ -36,17 +34,17 @@ import io.quarkus.test.junit.QuarkusTest;
  */
 @QuarkusTest
 public class TopologyShotAnalysisTest {
+    private static final Logger LOG = Logger.getLogger(TopologyShotAnalysisTest.class);
 
     @Inject
     Topology topology;
     TopologyTestDriver testDriver;
-    TestInputTopic<String, ShipwarsShotDataWrapper> shotsIn;
-    TestOutputTopic<String, ShipwarsShotDataAggregate> aggregateOut;
+    TestInputTopic<String, String> shotsIn;
+    TestOutputTopic<String, GameShotDataAggregate> aggregateOut;
 
     @BeforeEach
     public void setUp(){
         Properties config = new Properties();
-
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "testApplicationId");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
         testDriver = new TopologyTestDriver(topology, config);
@@ -54,12 +52,12 @@ public class TopologyShotAnalysisTest {
         shotsIn = testDriver.createInputTopic(
             SHOTS_TOPIC,
             new StringSerializer(),
-            ShipwarsSerdes.getShotJsonSerde().serializer()
+            new StringSerializer()
         );
         aggregateOut = testDriver.createOutputTopic(
             SHOTS_ANALYSIS_AGGREGATE_TOPIC,
             new StringDeserializer(),
-            new ObjectMapperDeserializer<>(ShipwarsShotDataAggregate.class)
+            new ObjectMapperDeserializer<>(GameShotDataAggregate.class)
         );
     }
 
@@ -72,40 +70,24 @@ public class TopologyShotAnalysisTest {
     @Test
     public void testAggregationForSameGameGeneration (){
         String key1 = "gameA:matchA";
+        String shot1 = "ai:hit:0,0";
+
         String key2 = "gameA:matchB";
+        String shot2 = "human:miss:1,3";
 
-        ShipwarsShotOrigin origin = new ShipwarsShotOrigin();
-        origin.setX(0);
-        origin.setY(0);
+        shotsIn.pipeInput(key1, shot1);
+        shotsIn.pipeInput(key2, shot2);
 
-        ShipwarsShotData shot1 = new ShipwarsShotData();
-        shot1.setAttacker("Jane");
-        shot1.setDestroyed("Carrier");
-        shot1.setHit(true);
-        shot1.setOrigin(origin);
-        shot1.setScoreDelta(5);
+        TestRecord<String, GameShotDataAggregate> result1 = aggregateOut.readRecord();;
+        TestRecord<String, GameShotDataAggregate> result2 = aggregateOut.readRecord();;
 
-        ShipwarsShotData shot2 = new ShipwarsShotData();
-        shot2.setAttacker("Jane");
-        shot2.setDestroyed("Carrier");
-        shot2.setHit(true);
-        shot2.setOrigin(origin);
-        shot2.setScoreDelta(5);
+        Assertions.assertEquals("gameA", result1.getKey());
+        Assertions.assertEquals(1, result1.getValue().get("0,0").ai_hit);
+        Assertions.assertEquals(0, result1.getValue().get("0,0").ai_miss);
 
-        // Write the same shot for two separate matches (matchA and matchB)
-        ShipwarsShotDataWrapper w1 = new ShipwarsShotDataWrapper();
-        w1.setData(shot1);
-        ShipwarsShotDataWrapper w2 = new ShipwarsShotDataWrapper();
-        w2.setData(shot2);
-
-        shotsIn.pipeInput(key1, w1);
-        shotsIn.pipeInput(key2, w2);
-
-        TestRecord<String, ShipwarsShotDataAggregate> result1 = aggregateOut.readRecord();;
-        TestRecord<String, ShipwarsShotDataAggregate> result2 = aggregateOut.readRecord();;
-
-        Assertions.assertEquals(1, result1.getValue().shotCountData.get("0,0"));
-        Assertions.assertEquals(2, result2.getValue().shotCountData.get("0,0"));
+        Assertions.assertEquals("gameA", result2.getKey());
+        Assertions.assertEquals(0, result2.getValue().get("1,3").human_hit);
+        Assertions.assertEquals(1, result2.getValue().get("1,3").human_miss);
     }
 
     @Test
@@ -114,51 +96,26 @@ public class TopologyShotAnalysisTest {
         String key2 = "gameY:matchA";
         String key3 = "gameY:matchB";
 
-        ShipwarsShotOrigin origin = new ShipwarsShotOrigin();
-        origin.setX(0);
-        origin.setY(0);
 
-        ShipwarsShotData shot1 = new ShipwarsShotData();
-        shot1.setAttacker("Jane");
-        shot1.setDestroyed("Carrier");
-        shot1.setHit(true);
-        shot1.setOrigin(origin);
-        shot1.setScoreDelta(5);
+        String shot1 = "human:miss:3,3";
+        String shot2 = "ai:hit:1,3";
+        String shot3 = "ai:hit:1,2";
 
-        ShipwarsShotData shot2 = new ShipwarsShotData();
-        shot2.setAttacker("Jane");
-        shot2.setDestroyed("Carrier");
-        shot2.setHit(true);
-        shot2.setOrigin(origin);
-        shot2.setScoreDelta(5);
+        shotsIn.pipeInput(key1, shot1);
+        shotsIn.pipeInput(key2, shot2);
+        shotsIn.pipeInput(key3, shot3);
 
-        ShipwarsShotData shot3 = new ShipwarsShotData();
-        shot3.setAttacker("Jane");
-        shot3.setDestroyed("Carrier");
-        shot3.setHit(true);
-        shot3.setOrigin(origin);
-        shot3.setScoreDelta(5);
+        TestRecord<String, GameShotDataAggregate> result1 = aggregateOut.readRecord();
+        TestRecord<String, GameShotDataAggregate> result2 = aggregateOut.readRecord();
+        TestRecord<String, GameShotDataAggregate> result3 = aggregateOut.readRecord();
 
-        ShipwarsShotDataWrapper w1 = new ShipwarsShotDataWrapper();
-        w1.setData(shot1);
-        shotsIn.pipeInput(key1, w1);
+        Assertions.assertEquals("gameX", result1.getKey());
+        Assertions.assertEquals(1, result1.getValue().get("3,3").human_miss);
 
-        ShipwarsShotDataWrapper w2 = new ShipwarsShotDataWrapper();
-        w2.setData(shot2);
-        shotsIn.pipeInput(key2, w2);
+        Assertions.assertEquals("gameY", result2.getKey());
+        Assertions.assertEquals(1, result2.getValue().get("1,3").ai_hit);
 
-        ShipwarsShotDataWrapper w3 = new ShipwarsShotDataWrapper();
-        w3.setData(shot3);
-        shotsIn.pipeInput(key3, w3);
-
-        TestRecord<String, ShipwarsShotDataAggregate> result1 = aggregateOut.readRecord();
-        TestRecord<String, ShipwarsShotDataAggregate> result2 = aggregateOut.readRecord();
-        TestRecord<String, ShipwarsShotDataAggregate> result3 = aggregateOut.readRecord();
-
-        Assertions.assertEquals(1, result1.getValue().shotCountData.get("0,0"));
-        Assertions.assertEquals(1, result2.getValue().shotCountData.get("0,0"));
-
-        // The "gameY" key should have two hits (from two different games) on 0,0
-        Assertions.assertEquals(2, result3.getValue().shotCountData.get("0,0"));
+        Assertions.assertEquals("gameY", result3.getKey());
+        Assertions.assertEquals(1, result3.getValue().get("1,2").ai_hit);
     }
 }

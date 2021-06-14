@@ -3,23 +3,31 @@
 Java application that uses [Quarkus](https://quarkus.io/) and [Apache Kafka Streams](https://kafka.apache.org/documentation/streams)
 to analyse events sent to Kafka by the [Shipwars Game Server](https://github.com/redhat-gamedev/shipwars-game-server).
 
-## Streams Topology
+## Streams Topologies
 
-* _shot-distribution-aggregator_ - Aggregates the distribution of shots for given game generations (each deploy is a new generation).
+* _shot-stream-enricher_ - Joins shot event data with the associated player data. This enriched topic is used by the _shot-distribution-aggregator_.
+* _shot-distribution-aggregator_ - Aggregates the distribution of shots for given game generations (each game server deployment is a new generation).
 
-The _shot-distribution-aggregator_ exposes a single endpoint:
+<div align="center">
+	<br>
+    <img style="max-width: 500px;" src="assets/architecture.png"/>
+	<br>
+  <i>Architecture of this Quarkus Kafka Streams Application.</i>
+</div>
 
-* `/shot-distribution` - Returns the shot distribution for all game generations.
+The _shot-distribution-aggregator_ exposes the following endpoints:
 
-## Building
-
-```bash
-mvn clean install
-```
+* `GET /shot-distribution` - Returns the shot distribution for all game generations.
+* `GET /shot-distribution/stream` - Opens a HTTP Server-Sent Events stream that sends each enriched shot to the HTTP client.
 
 ## Use with OpenShift Streams for Apache Kafka
 
-```
+Each module is configured to use SASL SSL to connect to Kafka, since this is
+standard with OpenShift Streams for Apache Kafka.
+
+```bash
+# Get the bootstrap URL using the rhoas CLI. A client ID and secret can be
+# obtained using the rhoas CLI or cloud.redhat.com UI
 KAFKA_BOOTSTRAP_SERVERS=$(rhoas kafka describe | jq .bootstrapServerHost -r) \
 KAFKA_CLIENT_ID="replace-me" \
 KAFKA_CLIENT_SECRET="replace-me" \
@@ -29,6 +37,59 @@ KAFKA_CLIENT_SECRET="replace-me" \
 ## Running Locally
 
 Refer to the Docker/Podman guides in [Shipwars Deployment](https://github.com/redhat-gamedev/shipwars-deployment).
+For example to run Shipwars services using Docker:
+
+```bash
+KAFKACONNECTION_BOOTSTRAPSERVERS=$(rhoas kafka describe | jq .bootstrapServerHost -r) \
+KAFKACONNECTION_SSL=true \
+KAFKACONNECTION_USER="replace-me" \
+KAFKACONNECTION_PASSWORD="replace-me" \
+docker-compose up --force-recreate --build
+```
+
+Next, start each Kafka Streams module by targeting the necessary `pom.xml`:
+
+```bash
+# Get the bootstrap URL using the rhoas CLI. A client ID and secret can be
+# obtained using the rhoas CLI or cloud.redhat.com UI
+KAFKA_BOOTSTRAP_SERVERS=$(rhoas kafka describe | jq .bootstrapServerHost -r) \
+KAFKA_CLIENT_ID="replace-me" \
+KAFKA_CLIENT_SECRET="replace-me" \
+./mvnw quarkus:dev -f shot-distribution-aggregator/pom.xml
+```
+
+*Note: The _shot-distribution-aggregator_ relies on the _shot-stream-enricher_ for data, so you need to run both.*
+
+## Building
+
+### JAR files
+
+This will build both application module JARs.
+
+```bash
+mvn clean install
+```
+
+### Docker Images
+
+Each module contains a script folder. Run the `build.sh` script from the root
+of the module you'd like to build:
+
+```bash
+# These will use defaults if not provided
+IMAGE_TAG=latest \
+IMAGE_REPOSITORY=quay.io/yourusername/name-of-image \
+./scripts/build.sh
+```
+
+To push the image use the `push.sh`:
+
+```bash
+# These will use defaults if not provided
+IMAGE_TAG=latest \
+IMAGE_REPOSITORY=quay.io/yourusername/name-of-image \
+./scripts/push.sh
+```
 
 ## Running for Development
 
