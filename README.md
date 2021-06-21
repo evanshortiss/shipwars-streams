@@ -10,9 +10,9 @@ to analyse events sent to Kafka by the [Shipwars Game Server](https://github.com
 
 <div align="center">
 	<br>
-    <img style="max-width: 500px;" src="assets/architecture.png"/>
+    <img style="max-width: 600px;" src="assets/architecture-complete.png"/>
 	<br>
-  <i>Architecture of this Quarkus Kafka Streams Application.</i>
+  <i>Architecture of the overall application and Quarkus Kafka Streams Topology.</i>
   <br>
   <br>
 </div>
