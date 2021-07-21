@@ -63,13 +63,14 @@ public class TopologyShotMapper {
                 },
                 (shot, player) -> {
                     String playerType = player.getData().getHuman() ? "human" : "ai";
+                    String playerName = player.getData().getUsername();
                     String shotResult = shot.getData().getHit() ? "hit" : "miss";
                     String shotOrigin = shot.getData().getOrigin().toCoordinateString();
 
                     // Create a new record String, e.g "human:miss:1,2"
-                    String joinResult = playerType + ":" + shotResult + ":" + shotOrigin;
+                    String joinResult = playerType + ":" + shotResult + ":" + shotOrigin + ":" + playerName;
 
-                    LOG.debug("Shot join result: " + joinResult);
+                    LOG.info("Shot join result: " + joinResult);
 
                     return joinResult;
                 }

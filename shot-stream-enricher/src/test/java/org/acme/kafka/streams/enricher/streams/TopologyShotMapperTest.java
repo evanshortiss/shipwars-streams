@@ -79,6 +79,7 @@ public class TopologyShotMapperTest {
     public void testJoinHumanHit () {
         String gameId = "gameId";
         String playerId = "playerId";
+        String playerUsername = "Shiba Inu";
         String matchId = "matchId";
 
         String playerKey = gameId + ":" + playerId;
@@ -101,7 +102,7 @@ public class TopologyShotMapperTest {
         ShipwarsPlayerDataWrapper playerWrapper = new ShipwarsPlayerDataWrapper();
         ShipwarsPlayerData playerData = new ShipwarsPlayerData();
         playerData.setHuman(true);
-        playerData.setUsername("Big Dinosaur");
+        playerData.setUsername(playerUsername);
         playerData.setUuid(playerId);
         playerWrapper.setData(playerData);
 
@@ -110,13 +111,14 @@ public class TopologyShotMapperTest {
 
         TestRecord<String, String> result = joinedTopic.readRecord();;
 
-        Assertions.assertEquals("human:hit:0,0", result.getValue());
+        Assertions.assertEquals("human:hit:0,0:" + playerUsername, result.getValue());
     }
 
     @Test
     public void testJoinAiMiss () {
         String gameId = "gameId";
         String playerId = "playerId";
+        String playerUsername = "Jindo";
         String matchId = "matchId";
 
         String playerKey = gameId + ":" + playerId;
@@ -138,7 +140,7 @@ public class TopologyShotMapperTest {
         ShipwarsPlayerDataWrapper playerWrapper = new ShipwarsPlayerDataWrapper();
         ShipwarsPlayerData playerData = new ShipwarsPlayerData();
         playerData.setHuman(false);
-        playerData.setUsername("Big Dinosaur");
+        playerData.setUsername(playerUsername);
         playerData.setUuid(playerId);
         playerWrapper.setData(playerData);
 
@@ -147,6 +149,6 @@ public class TopologyShotMapperTest {
 
         TestRecord<String, String> result = joinedTopic.readRecord();;
 
-        Assertions.assertEquals("ai:miss:0,0", result.getValue());
+        Assertions.assertEquals("ai:miss:0,0:" + playerUsername, result.getValue());
     }
 }

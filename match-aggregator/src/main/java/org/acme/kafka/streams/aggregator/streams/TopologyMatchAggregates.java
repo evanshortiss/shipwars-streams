@@ -3,7 +3,7 @@ package org.acme.kafka.streams.aggregator.streams;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
-import org.acme.kafka.streams.aggregator.model.MatchAggregates;
+import org.acme.kafka.streams.aggregator.model.MatchAggregate;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -29,19 +29,19 @@ public class TopologyMatchAggregates {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        final ObjectMapperSerde<MatchAggregates> aggregateSerde = new ObjectMapperSerde<>(MatchAggregates.class);
+        final ObjectMapperSerde<MatchAggregate> aggregateSerde = new ObjectMapperSerde<>(MatchAggregate.class);
         KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(MATCHES_STORE);
 
         builder.stream(SHOTS_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
             .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
             .aggregate(
-                MatchAggregates::new,
+                MatchAggregate::new,
                 (aggId, shot, aggregation) -> {
                     LOG.info("Update aggregate record for game \"" + aggId + "\"" + " with data: " + shot);
 
                     return aggregation.updateWithShotForMatch(shot, aggId);
                 },
-                Materialized.<String, MatchAggregates> as(storeSupplier)
+                Materialized.<String, MatchAggregate> as(storeSupplier)
                     .withKeySerde(Serdes.String())
                     .withValueSerde(aggregateSerde)
             )

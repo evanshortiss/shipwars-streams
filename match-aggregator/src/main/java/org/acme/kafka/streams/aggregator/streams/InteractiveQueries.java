@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.acme.kafka.streams.aggregator.model.MatchAggregates;
+import org.acme.kafka.streams.aggregator.model.MatchAggregate;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
@@ -38,20 +38,20 @@ public class InteractiveQueries {
             .collect(Collectors.toList());
     }
 
-    public HashMap<String, MatchAggregates> getAllShotData (Integer count) {
-        HashMap<String, MatchAggregates> results = new HashMap<String, MatchAggregates>();
-        ReadOnlyKeyValueStore<String, MatchAggregates> keyValueStore = getShotAnalysisStore();
-        KeyValueIterator<String, MatchAggregates> it = keyValueStore.all();
+    public HashMap<String, MatchAggregate> getAllShotData (Integer count) {
+        HashMap<String, MatchAggregate> results = new HashMap<String, MatchAggregate>();
+        ReadOnlyKeyValueStore<String, MatchAggregate> keyValueStore = getShotAnalysisStore();
+        KeyValueIterator<String, MatchAggregate> it = keyValueStore.all();
 
         while (it.hasNext() && results.size() < count) {
-            KeyValue<String, MatchAggregates> entry = it.next();
+            KeyValue<String, MatchAggregate> entry = it.next();
             results.put(entry.key, entry.value);
         }
 
         return results;
     }
 
-    private ReadOnlyKeyValueStore<String, MatchAggregates> getShotAnalysisStore() {
+    private ReadOnlyKeyValueStore<String, MatchAggregate> getShotAnalysisStore() {
         while (true) {
             try {
                 return streams.store(TopologyMatchAggregates.MATCHES_STORE, QueryableStoreTypes.keyValueStore());

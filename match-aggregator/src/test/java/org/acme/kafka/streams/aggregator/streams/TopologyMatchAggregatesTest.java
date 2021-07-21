@@ -10,7 +10,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.acme.kafka.streams.aggregator.model.MatchAggregates;
+import org.acme.kafka.streams.aggregator.model.MatchAggregate;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
@@ -39,7 +39,7 @@ public class TopologyMatchAggregatesTest {
     Topology topology;
     TopologyTestDriver testDriver;
     TestInputTopic<String, String> shotsIn;
-    TestOutputTopic<String, MatchAggregates> aggregateOut;
+    TestOutputTopic<String, MatchAggregate> aggregateOut;
 
     @BeforeEach
     public void setUp(){
@@ -56,7 +56,7 @@ public class TopologyMatchAggregatesTest {
         aggregateOut = testDriver.createOutputTopic(
             MATCHES_AGGREGATE_TOPIC,
             new StringDeserializer(),
-            new ObjectMapperDeserializer<>(MatchAggregates.class)
+            new ObjectMapperDeserializer<>(MatchAggregate.class)
         );
     }
 
@@ -69,27 +69,44 @@ public class TopologyMatchAggregatesTest {
     @Test
     public void testAggregation (){
         String key1 = "gameA:matchA";
-        String shot1 = "ai:hit:0,0";
+        String shot1 = "ai:hit:0,0:Shiba Inu";
 
         String key2 = "gameA:matchB";
-        String shot2 = "human:miss:1,3";
+        String shot2 = "human:miss:1,3:Jindo";
+
+        String key3 = "gameA:matchB";
+        String shot3 = "ai:miss:2,2:Kishu Ken";
 
         shotsIn.pipeInput(key1, shot1);
         shotsIn.pipeInput(key2, shot2);
 
-        TestRecord<String, MatchAggregates> result1 = aggregateOut.readRecord();
-        TestRecord<String, MatchAggregates> result2 = aggregateOut.readRecord();
+        TestRecord<String, MatchAggregate> result1 = aggregateOut.readRecord();
+        TestRecord<String, MatchAggregate> result2 = aggregateOut.readRecord();
 
         Assertions.assertEquals("gameA:matchA", result1.getKey());
-        Assertions.assertEquals(0, result1.getValue().get(0).x);
-        Assertions.assertEquals(0, result1.getValue().get(0).y);
-        Assertions.assertEquals(true, result1.getValue().get(0).ai);
-        Assertions.assertEquals(true, result1.getValue().get(0).hit);
+        Assertions.assertEquals(0, result1.getValue().shots.get(0).x);
+        Assertions.assertEquals(0, result1.getValue().shots.get(0).y);
+        Assertions.assertEquals(true, result1.getValue().shots.get(0).ai);
+        Assertions.assertEquals(true, result1.getValue().shots.get(0).hit);
+        Assertions.assertEquals(null, result1.getValue().human_name);
+        Assertions.assertEquals("Shiba Inu", result1.getValue().ai_name);
 
         Assertions.assertEquals("gameA:matchB", result2.getKey());
-        Assertions.assertEquals(1, result2.getValue().get(0).x);
-        Assertions.assertEquals(3, result2.getValue().get(0).y);
-        Assertions.assertEquals(false, result2.getValue().get(0).ai);
-        Assertions.assertEquals(false, result2.getValue().get(0).hit);
+        Assertions.assertEquals(1, result2.getValue().shots.get(0).x);
+        Assertions.assertEquals(3, result2.getValue().shots.get(0).y);
+        Assertions.assertEquals(false, result2.getValue().shots.get(0).ai);
+        Assertions.assertEquals(false, result2.getValue().shots.get(0).hit);
+        Assertions.assertEquals("Jindo", result2.getValue().human_name);
+        Assertions.assertEquals(null, result2.getValue().ai_name);
+
+        shotsIn.pipeInput(key3, shot3);
+        TestRecord<String, MatchAggregate> result3 = aggregateOut.readRecord();
+        Assertions.assertEquals("gameA:matchB", result3.getKey());
+        Assertions.assertEquals(2, result3.getValue().shots.get(1).x);
+        Assertions.assertEquals(2, result3.getValue().shots.get(1).y);
+        Assertions.assertEquals(true, result3.getValue().shots.get(1).ai);
+        Assertions.assertEquals(false, result3.getValue().shots.get(1).hit);
+        Assertions.assertEquals("Jindo", result3.getValue().human_name);
+        Assertions.assertEquals("Kishu Ken", result3.getValue().ai_name);
     }
 }
