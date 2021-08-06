@@ -6,6 +6,7 @@ to analyse events sent to Kafka by the [Shipwars Game Server](https://github.com
 ## Streams Topologies
 
 * _shot-stream-enricher_ - Joins shot event data with the associated player data. This enriched topic is used by the _shot-distribution-aggregator_.
+* _match-aggregator_ - Creates an aggregate record for each match. This facilitates match analysis and replay.
 * _shot-distribution-aggregator_ - Aggregates the distribution of shots for given game generations (each game server deployment is a new generation).
 
 <div align="center">
@@ -16,6 +17,11 @@ to analyse events sent to Kafka by the [Shipwars Game Server](https://github.com
   <br>
   <br>
 </div>
+
+The _match-aggregator_ exposes the following endpoint:
+
+* `GET /replays` - Returns an array of replays. A `count` query parameter can
+be provided to limit the returned results - it defaults to 12.
 
 The _shot-distribution-aggregator_ exposes the following endpoints:
 
@@ -54,6 +60,7 @@ standard with OpenShift Streams for Apache Kafka.
 ```bash
 # Get the bootstrap URL using the rhoas CLI. A client ID and secret can be
 # obtained using the rhoas CLI or cloud.redhat.com UI
+# Specify which application to run using the -f flag
 KAFKA_BOOTSTRAP_SERVERS=$(rhoas kafka describe | jq .bootstrapServerHost -r) \
 KAFKA_CLIENT_ID="replace-me" \
 KAFKA_CLIENT_SECRET="replace-me" \
