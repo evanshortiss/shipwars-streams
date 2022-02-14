@@ -51,6 +51,21 @@ public class InteractiveQueries {
         return results;
     }
 
+    public HashMap<String, MatchAggregate> getMatchesForUser (String user) {
+        HashMap<String, MatchAggregate> results = new HashMap<String, MatchAggregate>();
+        ReadOnlyKeyValueStore<String, MatchAggregate> keyValueStore = getShotAnalysisStore();
+        KeyValueIterator<String, MatchAggregate> it = keyValueStore.all();
+
+        while (it.hasNext()) {
+            KeyValue<String, MatchAggregate> entry = it.next();
+            if (entry.value.human_name.equals(user) || entry.value.ai_name.equals(user)) {
+                results.put(entry.key, entry.value);
+            }
+        }
+
+        return results;
+    }
+
     private ReadOnlyKeyValueStore<String, MatchAggregate> getShotAnalysisStore() {
         while (true) {
             try {
